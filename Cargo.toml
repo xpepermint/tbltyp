@@ -1,0 +1,15 @@
+[package]
+name = "rawcmd_table"
+description = "Command-line table typewriter."
+license = "MIT"
+version = "0.1.0"
+authors = ["Kristijan Sedlak <xpepermint@gmail.com>"]
+edition = "2018"
+documentation = "https://github.com/xpepermint/rawcmd_table"
+homepage = "https://github.com/xpepermint/rawcmd_table"
+repository = "https://github.com/xpepermint/rawcmd_table"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rawcmd_utils = "0.1.0"
