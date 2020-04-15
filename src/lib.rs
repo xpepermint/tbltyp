@@ -1,6 +1,6 @@
-mod cell;
+mod column;
 mod row;
 
 pub use rawcmd_utils::{Alignment};
-pub use cell::{Cell};
+pub use column::{Column};
 pub use row::{Row};

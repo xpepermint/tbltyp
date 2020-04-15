@@ -1,8 +1,8 @@
 use rawcmd_utils::{Alignment, repaire_text, trucate_text, wrap_text, pad_text};
 
-/// Cell structure which represents a formatted column in a row.
+/// Column structure which represents a formatted column in a row.
 #[derive(Debug, Clone, PartialEq)]
-pub struct Cell {
+pub struct Column {
     width: Option<usize>,
     text: Option<String>,
     text_width: Option<usize>,
@@ -12,7 +12,7 @@ pub struct Cell {
 }
 
 /// Style structure implementation.
-impl Cell {
+impl Column {
 
     /// Returns new instance.
     pub fn new() -> Self {
@@ -26,12 +26,12 @@ impl Cell {
         }
     }
 
-    /// Returns cell width.
+    /// Returns column width.
     pub fn width(&self) -> &Option<usize> {
         &self.width
     }
 
-    /// Returns cell width.
+    /// Returns column width.
     pub fn text(&self) -> &Option<String> {
         &self.text
     }
@@ -65,25 +65,25 @@ impl Cell {
         }
     }
 
-    /// Sets cell width.
+    /// Sets column width.
     pub fn set_width(mut self, width: usize) -> Self {
         self.width = Some(width);
         self
     }
 
-    /// Sets cell text.
+    /// Sets column text.
     pub fn set_text(mut self, text: &str) -> Self {
         self.text = Some(text.to_string());
         self
     }
     
-    /// Sets cell text width.
+    /// Sets column text width.
     pub fn set_text_width(mut self, width: usize) -> Self {
         self.text_width = Some(width);
         self
     }
 
-    /// Sets cell text alignement.
+    /// Sets column text alignement.
     pub fn set_text_align(mut self, align: Alignment) -> Self {
         self.text_align = Some(align);
         self
@@ -101,7 +101,7 @@ impl Cell {
         self
     }
 
-    /// Returns a formatted cell content as multiline string.
+    /// Returns a formatted column content as multiline string.
     pub fn build_rows(&self) -> Vec<String> {
         let mut text = match &self.text {
             Some(t) => t.to_string(),
@@ -126,14 +126,14 @@ mod tests {
 
     #[test]
     fn builds_rows() {
-        let cell0 = Cell::new()
+        let column = Column::new()
             .set_text("Allocating memory \x1B[31mis actually quite fast, and regardless you’re going to be copying the entire\x1B[39m string around.")
             .set_width(30)
             .set_text_width(72)
             .set_text_align(Alignment::Center)
             .set_text_tail("+++")
             .set_text_pad('!');
-        assert_eq!(cell0.build_rows(), [
+        assert_eq!(column.build_rows(), [
             "Allocating memory \u{1b}[31mis actually!\u{1b}[39m",
             "\u{1b}[31m!quit+++be copying the entire\u{1b}[39m!",
             "!!!!!!!!!string aroun!!!!!!!!!",

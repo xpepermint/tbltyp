@@ -3,11 +3,11 @@
 Example:
 
 ```rs
-let cell = Cell::new()
+let column = Column::new()
     .set_width(20)
     .set_text("Text")
     .set_text_pad('+');
-let row = super::Row::new()
-    .add_cell(cell)
+let row = Row::new()
+    .add_column(column)
     .build_rows();
 ```
