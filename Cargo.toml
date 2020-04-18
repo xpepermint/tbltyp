@@ -1,15 +1,13 @@
 [package]
-name = "rawcmd_table"
-description = "Command-line table typewriter."
+name = "tbltyp"
+description = "Table string typewriter."
 license = "MIT"
 version = "0.1.0"
 authors = ["Kristijan Sedlak <xpepermint@gmail.com>"]
 edition = "2018"
-documentation = "https://github.com/xpepermint/rawcmd_table"
-homepage = "https://github.com/xpepermint/rawcmd_table"
-repository = "https://github.com/xpepermint/rawcmd_table"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+documentation = "https://github.com/xpepermint/tbltyp"
+homepage = "https://github.com/xpepermint/tbltyp"
+repository = "https://github.com/xpepermint/tbltyp"
 
 [dependencies]
-rawcmd_utils = "0.1.0"
+ansistr = "0.1.1"
