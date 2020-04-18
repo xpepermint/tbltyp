@@ -1,4 +1,4 @@
-use rawcmd_utils::{Alignment, repaire_text, trucate_text, wrap_text, pad_text};
+use ansistr::{TextAlign, repaire_str, trucate_str, wrap_str, pad_str};
 
 /// Column structure which represents a formatted column in a row.
 #[derive(Debug, Clone, PartialEq)]
@@ -6,9 +6,9 @@ pub struct Column {
     width: Option<usize>,
     text: Option<String>,
     text_width: Option<usize>,
-    text_align: Option<Alignment>,
+    text_align: Option<TextAlign>,
     text_tail: Option<String>,
-    text_pad: Option<char>,
+    text_pad: Option<String>,
 }
 
 /// Style structure implementation.
@@ -19,6 +19,18 @@ impl Column {
         Self {
             width: None,
             text: None,
+            text_width: None,
+            text_align: None,
+            text_tail: None,
+            text_pad: None,
+        }
+    }
+
+    /// Returns new instance.
+    pub fn from_str<S: Into<String>>(txt: S) -> Self {
+        Self {
+            width: None,
+            text: Some(txt.into()),
             text_width: None,
             text_align: None,
             text_tail: None,
@@ -42,10 +54,10 @@ impl Column {
     }
 
     /// Returns text width
-    pub fn text_align(&self) -> &Alignment {
+    pub fn text_align(&self) -> &TextAlign {
         match &self.text_align {
             Some(t) => t,
-            None => &Alignment::Left,
+            None => &TextAlign::Left,
         }
     }
 
@@ -58,10 +70,10 @@ impl Column {
     }
 
     /// Returns text pad character.
-    pub fn text_pad(&self) -> &char {
+    pub fn text_pad(&self) -> &str {
         match &self.text_pad {
             Some(t) => t,
-            None => &' ',
+            None => &" ",
         }
     }
 
@@ -72,8 +84,8 @@ impl Column {
     }
 
     /// Sets column text.
-    pub fn set_text(mut self, text: &str) -> Self {
-        self.text = Some(text.to_string());
+    pub fn set_text<S: Into<String>>(mut self, text: S) -> Self {
+        self.text = Some(text.into());
         self
     }
     
@@ -84,39 +96,43 @@ impl Column {
     }
 
     /// Sets column text alignement.
-    pub fn set_text_align(mut self, align: Alignment) -> Self {
+    pub fn set_text_align(mut self, align: TextAlign) -> Self {
         self.text_align = Some(align);
         self
     }
 
     /// Sets text truncation tail string.
-    pub fn set_text_tail(mut self, tail: &str) -> Self {
-        self.text_tail = Some(tail.to_string());
+    pub fn set_text_tail<S: Into<String>>(mut self, tail: S) -> Self {
+        self.text_tail = Some(tail.into());
         self
     }
 
     /// Sets text pad character.
-    pub fn set_text_pad(mut self, pad: char) -> Self {
-        self.text_pad = Some(pad);
+    pub fn set_text_pad<S: Into<String>>(mut self, pad: S) -> Self {
+        self.text_pad = Some(pad.into());
         self
     }
 
     /// Returns a formatted column content as multiline string.
-    pub fn build_rows(&self) -> Vec<String> {
+    pub fn to_string(&self) -> String {
         let mut text = match &self.text {
             Some(t) => t.to_string(),
-            None => return Vec::new(),
+            None => return "".to_string(),
         };
         if self.text_width.is_some() {
-            text = trucate_text(text.as_str(), self.text_width.unwrap(), self.text_align(), self.text_tail());
+            text = trucate_str(text, self.text_width.unwrap(), self.text_align(), self.text_tail());
         }
         let text = if self.width.is_some() {
             let width = self.width.unwrap();
-            wrap_text(text.as_str(), width).iter().map(|r| pad_text(r, width, self.text_align(), *self.text_pad())).collect()
+            wrap_str(text, width)
+                .split("\n")
+                .map(|r| pad_str(r, width, self.text_align(), self.text_pad()))
+                .collect::<Vec<String>>()
+                .join("\n")
         } else {
-            vec![text]
+            text
         };
-        repaire_text(text)
+        format!("{}\n", repaire_str(text))
     }
 }
 
@@ -125,18 +141,18 @@ mod tests {
     use super::*;
 
     #[test]
-    fn builds_rows() {
+    fn builds_multiline_string() {
         let column = Column::new()
             .set_text("Allocating memory \x1B[31mis actually quite fast, and regardless you’re going to be copying the entire\x1B[39m string around.")
             .set_width(30)
             .set_text_width(72)
-            .set_text_align(Alignment::Center)
+            .set_text_align(TextAlign::Center)
             .set_text_tail("+++")
-            .set_text_pad('!');
-        assert_eq!(column.build_rows(), [
-            "Allocating memory \u{1b}[31mis actually!\u{1b}[39m",
-            "\u{1b}[31m!quit+++be copying the entire\u{1b}[39m!",
-            "!!!!!!!!!string aroun!!!!!!!!!",
-        ]);
+            .set_text_pad("!");
+        assert_eq!(column.to_string(), [
+            "Allocating memory \u{1b}[31mis actually!\u{1b}[39m\n",
+            "\u{1b}[31m!quit+++be copying the entire\u{1b}[39m!\n",
+            "!!!!!!!!!string aroun!!!!!!!!!\n",
+        ].join(""));
     }
 }
