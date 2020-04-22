@@ -1,3 +1,4 @@
+use std::fmt;
 use ansistr::{pad_str};
 use crate::{Column};
 
@@ -24,7 +25,7 @@ impl Row {
     }
 
     /// Returns a formatted row content as multiline string.
-    pub fn to_string(&self) -> String {
+    pub fn build(&self) -> String {
         let mut result = Vec::new();
 
         let xcount = match self.columns.len() {
@@ -67,9 +68,21 @@ impl Row {
     }
 }
 
+impl fmt::Display for Row {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.build())
+    }
+}
+
+impl From<Row> for String {
+    fn from(item: Row) -> String {
+        item.build()
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::{Column};
+    use crate::*;
 
     #[test]
     fn builds_multiline_string() {
@@ -84,15 +97,27 @@ mod tests {
             .set_width(20)
             .set_text("Going 利干 to be the entire string around.")
             .set_text_pad("+");
-        let row = super::Row::new()
+        let row = Row::new()
             .add_column(column0)
             .add_column(column1)
             .add_column(column2);
-        assert_eq!(row.to_string(), vec![
+        assert_eq!(row.build(), vec![
             "Allocating \u{1b}[31mmemory is actually*\u{1b}[39m|||Going 利干 to be the\n",
             "\u{1b}[31mquite fast, and regardless****\u{1b}[39m|||entire string+++++++\n",
             "\u{1b}[31myou’re going to be copying****\u{1b}[39m|||around.+++++++++++++\n",
             "\u{1b}[31mthe entire\u{1b}[39m string around.*****|||++++++++++++++++++++\n",
         ].join(""));
+    }
+
+    #[test]
+    fn converts_to_string() {
+        fn convert<S: Into<String>>(txt: S) -> String {
+            txt.into()
+        }
+        assert_eq!(convert(
+            Row::new().add_column(
+                Column::new().set_text("foo")
+            )
+        ), "foo\n");
     }
 }

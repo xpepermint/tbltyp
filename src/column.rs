@@ -1,3 +1,4 @@
+use std::fmt;
 use ansistr::{TextAlign, repaire_str, trucate_str, wrap_str, pad_str};
 
 /// Column structure which represents a formatted column in a row.
@@ -114,7 +115,7 @@ impl Column {
     }
 
     /// Returns a formatted column content as multiline string.
-    pub fn to_string(&self) -> String {
+    pub fn build(&self) -> String {
         let mut text = match &self.text {
             Some(t) => t.to_string(),
             None => return "".to_string(),
@@ -136,6 +137,18 @@ impl Column {
     }
 }
 
+impl fmt::Display for Column {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "{}", self.build())
+    }
+}
+
+impl From<Column> for String {
+    fn from(item: Column) -> String {
+        item.build()
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -149,10 +162,19 @@ mod tests {
             .set_text_align(TextAlign::Center)
             .set_text_tail("+++")
             .set_text_pad("!");
-        assert_eq!(column.to_string(), [
+        assert_eq!(column.build(), [
             "Allocating memory \u{1b}[31mis actually!\u{1b}[39m\n",
             "\u{1b}[31m!quit+++be copying the entire\u{1b}[39m!\n",
             "!!!!!!!!!string aroun!!!!!!!!!\n",
         ].join(""));
     }
+
+    #[test]
+    fn converts_to_string() {
+        fn convert<S: Into<String>>(txt: S) -> String {
+            txt.into()
+        }
+        assert_eq!(convert(Column::new().set_text("foo")), "foo\n");
+    }
+
 }
